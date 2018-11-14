@@ -1,0 +1,30 @@
+{
+  "name": "onepage-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.11",
+    "minimist": "^1.2.0",
+    "node-fetch": "^2.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rstar2/onepage-crawler.git"
+  },
+  "keywords": [],
+  "author": "Rumen Neshev <rstardev@abv.bg>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rstar2/onepage-crawler/issues"
+  },
+  "homepage": "https://github.com/rstar2/onepage-crawler#readme"
+}
