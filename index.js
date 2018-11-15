@@ -41,9 +41,14 @@ const main = async () => {
         await fs.promises.mkdir(path.dirname(file), { recursive: true });
         // await 1;
 
-        fs.writeFile(file, data, noop);
-        console.log('Crawled', name);
+        // fs.writeFile(file, data, noop);
+        console.log('Saved', file);
     });
+
+    // TODO: Return a resolved promise when all is really written in the files
+
 };
 
-main();
+main()
+    .then(() => console.log('Success'))
+    .catch((err) => console.error('Failed', err || ''));
