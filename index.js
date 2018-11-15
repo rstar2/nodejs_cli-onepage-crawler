@@ -15,8 +15,14 @@ const main = async () => {
     argv = require('minimist')(argv);
 
     const [url] = argv._;
-    const name = argv['name'] || argv['n'];
-    const crawlImages = argv['i'];
+    const name = argv['out-dir'] || argv['o'];
+    const opts = {
+        js: !argv['j'], // -j means no JS
+        css: !argv['c'], // -c means no CSS
+        images: !argv['i'], // -i means no images
+    };
+
+    const simulate = !!argv['s'];
 
     if (!url) {
         console.error('No url to crawl');
@@ -35,13 +41,15 @@ const main = async () => {
     // NOTE!!! - as the callback passed is 'async' function this means that it's actually a Promise (resolved promise),
     // so this actually makes this callback as a microtask (actually multiple microtasks) for the crawler,
     // this means first all the sync code in crawler function will be executed and then the microtasks
-    await crawler(new URL(url), crawlImages, async (name, data) => {
+    await crawler(new URL(url), opts, async (name, data) => {
         const file = path.resolve(name);
 
         await fs.promises.mkdir(path.dirname(file), { recursive: true });
         // await 1;
 
-        // fs.writeFile(file, data, noop);
+        if (!simulate) {
+            fs.writeFile(file, data, noop);
+        }
         console.log('Saved', file);
     });
 
