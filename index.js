@@ -2,9 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { URL } = require('url');
-
-const { noop } = require('lodash');
 
 // Usage:
 // $ onepage-crawler theme-url [--name=theme] [-i]
@@ -41,22 +38,37 @@ const main = async () => {
     // NOTE!!! - as the callback passed is 'async' function this means that it's actually a Promise (resolved promise),
     // so this actually makes this callback as a microtask (actually multiple microtasks) for the crawler,
     // this means first all the sync code in crawler function will be executed and then the microtasks
-    await crawler(new URL(url), opts, async (name, data) => {
+    const writePromises = [];
+    await crawler(url, opts, (name, data) => {
+        console.log('writePromises add ', writePromises.length);
         const file = path.resolve(name);
 
-        await fs.promises.mkdir(path.dirname(file), { recursive: true });
-        // await 1;
-
+        let writePromise = Promise.resolve('Simulate save');
         if (!simulate) {
-            fs.writeFile(file, data, noop);
+            writePromise = fs.promises.mkdir(path.dirname(file), { recursive: true })
+                .then(() => fs.promises.writeFile(file, data));
         }
-        console.log('Saved', file);
+        writePromise = writePromise
+            .then(() => {
+                if (finished) {
+                    console.log('Saved after finished');
+                }
+                console.log('Saved', file);
+            })
+            .catch(console.error);
+
+        console.log('writePromises push ', writePromises.length);
+        writePromises.push(writePromise);
     });
 
-    // TODO: Return a resolved promise when all is really written in the files
-
+    console.log('writePromises return', writePromises.length);
+    // Return a resolved promise when all is really written in the files
+    return Promise.all(writePromises);
 };
 
+// TODO: Finish synchronization is not ready
+let finished = false;
+console.log('Start');
 main()
-    .then(() => console.log('Success'))
+    .then(() => console.log('Success') || (finished = true))
     .catch((err) => console.error('Failed', err || ''));
