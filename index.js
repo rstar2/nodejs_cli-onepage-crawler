@@ -39,36 +39,26 @@ const main = async () => {
     // so this actually makes this callback as a microtask (actually multiple microtasks) for the crawler,
     // this means first all the sync code in crawler function will be executed and then the microtasks
     const writePromises = [];
-    await crawler(url, opts, (name, data) => {
-        console.log('writePromises add ', writePromises.length);
+    await crawler(url, opts, async (name, data) => {
         const file = path.resolve(name);
 
         let writePromise = Promise.resolve('Simulate save');
         if (!simulate) {
             writePromise = fs.promises.mkdir(path.dirname(file), { recursive: true })
-                .then(() => fs.promises.writeFile(file, data));
+                .then(() => fs.promises.writeFile(file, data))
+                .then(() => {
+                    console.log('Saved', file);
+                })
+                .catch(console.error);
         }
-        writePromise = writePromise
-            .then(() => {
-                if (finished) {
-                    console.log('Saved after finished');
-                }
-                console.log('Saved', file);
-            })
-            .catch(console.error);
-
-        console.log('writePromises push ', writePromises.length);
         writePromises.push(writePromise);
     });
 
-    console.log('writePromises return', writePromises.length);
     // Return a resolved promise when all is really written in the files
     return Promise.all(writePromises);
 };
 
-// TODO: Finish synchronization is not ready
-let finished = false;
 console.log('Start');
 main()
-    .then(() => console.log('Success') || (finished = true))
+    .then(() => console.log('Success'))
     .catch((err) => console.error('Failed', err || ''));
